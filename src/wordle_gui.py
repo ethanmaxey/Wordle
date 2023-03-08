@@ -1,11 +1,9 @@
 from wordle import *
-import pygame, sys, random, pandas
+from wordle_agile_spellcheck import is_spelling_correct
+from agile_word_picker import get_random_word
+import pygame, sys
 
-dictionary_csv = pandas.read_csv("words.csv")
-
-WORDS = dictionary_csv[dictionary_csv.columns[0]].tolist()
-
-solution = random.choice(WORDS)
+solution = get_random_word()
 
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -20,6 +18,8 @@ class Board:
     rowPos, colPos = 0, 0
     board = [["" for block in range(5)] for block in range(6)]
     current_game_status = IN_PROGRESS
+    is_guess_a_real_word = False
+    is_not_a_word_displayed = False
     invalid_word = False
 
 pygame.init()
@@ -27,29 +27,47 @@ big_font = pygame.font.Font(None, 52)
 little_font = pygame.font.Font(None, 26)
 screen = pygame.display.set_mode((width, height))
 
+def blackout_bottom_display():
+    
+    guess_button = big_font.render('Not a word.', True, black, black) 
+    screen.blit(guess_button, (screen.get_width() / 2 -  guess_button.get_rect().width / 2, 550))
+    
+def display_not_a_word_upon_invalid_spelled_guess():
+    
+    board_instance.is_not_a_word_displayed = True
+    message_object = big_font.render("Not a word.", True, red)
+    screen.blit(message_object, (screen.get_width() / 2 -  message_object.get_rect().width / 2, 550))
+    
 def add_guess_to_board():
     
     temp_guess = ''.join(board_instance.board[board_instance.rowPos])
     
     if len(temp_guess) == 5:
         
-        play_output_dictionary = play(solution, temp_guess, board_instance.rowPos)
-        
-        highlight_text_colors(play_output_dictionary['response'], board_instance.rowPos)
-        
-        check_for_game_over(play_output_dictionary['status'], play_output_dictionary['message'])
-        
-        if (play_output_dictionary['status'] == IN_PROGRESS):
-            board_instance.rowPos += 1
-            board_instance.colPos = 0
-
+        if is_spelling_correct(temp_guess):
+            
+                play_output_dictionary = play(solution, temp_guess, board_instance.rowPos)
+                
+                highlight_text_colors(play_output_dictionary['response'], board_instance.rowPos)
+                
+                check_for_game_over(play_output_dictionary['status'], play_output_dictionary['message'])
+                
+                if (play_output_dictionary['status'] == IN_PROGRESS):
+                    board_instance.rowPos += 1
+                    board_instance.colPos = 0
+                    
+        else: 
+            
+            blackout_bottom_display()
+            display_not_a_word_upon_invalid_spelled_guess()
+            
 def mouse_is_over_button():
 
     return True if (pygame.mouse.get_pos()[0] >= 147 and pygame.mouse.get_pos()[0] <= 270 and pygame.mouse.get_pos()[1] >= 550 and pygame.mouse.get_pos()[1] <= 585) else False
 
 def highlight_guess_button(event):
     
-    if mouse_is_over_button() and len(''.join(board_instance.board[board_instance.rowPos])) == 5: 
+    if mouse_is_over_button() and len(''.join(board_instance.board[board_instance.rowPos])) == 5 and not board_instance.is_not_a_word_displayed: 
         
         guess_button = big_font.render('GUESS', True, white, black)
         screen.blit(guess_button, (screen.get_width() / 2 -  guess_button.get_rect().width / 2, 550))
@@ -60,21 +78,21 @@ def mouse_clicking_guess_button_functionality(event):
 
 def display_clickable_button(event):
     
-    if len(''.join(board_instance.board[board_instance.rowPos])) == 5 and board_instance.current_game_status == IN_PROGRESS:
-        
-        guess_button = big_font.render('GUESS', True, grey, black)
-        screen.blit(guess_button, (screen.get_width() / 2 -  guess_button.get_rect().width / 2, 550))
-                    
-    else: 
-        
-        guess_button = big_font.render('GUESS', True, black, black)
-        screen.blit(guess_button, (screen.get_width() / 2 -  guess_button.get_rect().width / 2, 550))
+    if not board_instance.is_not_a_word_displayed:
+    
+        if len(''.join(board_instance.board[board_instance.rowPos])) == 5 and board_instance.current_game_status == IN_PROGRESS:
+            
+            guess_button = big_font.render('GUESS', True, grey, black)
+            screen.blit(guess_button, (screen.get_width() / 2 -  guess_button.get_rect().width / 2, 550))
+                        
+        else: 
+            
+            guess_button = big_font.render('Not a word.', True, black, black)
+            screen.blit(guess_button, (screen.get_width() / 2 -  guess_button.get_rect().width / 2, 550))
 
 def display_game_ending_message(message):
     
-    guess_button = big_font.render('GUESS', True, black, black) 
-    
-    screen.blit(guess_button, (screen.get_width() / 2 -  guess_button.get_rect().width / 2, 550))
+    blackout_bottom_display()
 
     display_font = big_font if board_instance.current_game_status == WON else little_font 
     color = green if board_instance.current_game_status == WON else red
@@ -108,12 +126,17 @@ def enter_key_button_functionality(event):
 def backspace_key_functionality(event):
     
     if (event.key == pygame.K_BACKSPACE and board_instance.colPos > 0):
+                   
+        if board_instance.colPos == 5: 
+            
+            board_instance.is_not_a_word_displayed = False
+            blackout_bottom_display()
                         
         board_instance.colPos -= 1
         board_instance.board[board_instance.rowPos][board_instance.colPos] = ""
         
         pygame.draw.rect(screen, black, [(board_instance.colPos) * 80 + 12, board_instance.rowPos * 80 + 50, 75, 75])
-
+        
 def draw_blank_board():
     
     for colNum in range(0, 5):

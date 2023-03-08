@@ -1,16 +1,16 @@
 from enum import Enum
 
 class Match(Enum):
-    EXACT = 1
-    EXISTS = 2
-    ABSENT = 3
+  EXACT = 1
+  EXISTS = 2
+  ABSENT = 3
 
 EXACT, EXISTS, ABSENT = Match.EXACT, Match.EXISTS, Match.ABSENT
 
 class GameStatus(Enum):
-    WON, LOST, IN_PROGRESS = 1, 2, 3
+    WON, LOST, IN_PROGRESS, WRONG_SPELLING = 1, 2, 3, 4
     
-WON, LOST, IN_PROGRESS = GameStatus.WON, GameStatus.LOST, GameStatus.IN_PROGRESS
+WON, LOST, IN_PROGRESS, WRONG_SPELLING = GameStatus.WON, GameStatus.LOST, GameStatus.IN_PROGRESS, GameStatus.WRONG_SPELLING
 
 WORD_SIZE = 5
 
@@ -63,12 +63,18 @@ def count_positional_matches(target, guess, letter):
 def count_number_of_occurrences_until_position(position, word, letter):
   return word[:position + 1].count(letter)
 
-def play(target, guess, attempts_so_far):
+def play(target, guess, attempts_so_far, is_spelling_correct=lambda word: True):
   
-  response = tally(target, guess)
+  current_attempt_number, response, status, message = attempts_so_far, [], WRONG_SPELLING, ""
   
-  current_attempt_number = attempts_so_far + 1
-  
-  win_loss_dict = calculate_win_or_loss_variables(current_attempt_number, response, target)
-  
-  return  {"attempts": current_attempt_number, "response": response, "status": win_loss_dict["status"], "message": win_loss_dict["message"]}
+  if (is_spelling_correct(guess)):
+    
+    response = tally(target, guess)
+    
+    current_attempt_number = attempts_so_far + 1
+    
+    win_loss_dict = calculate_win_or_loss_variables(current_attempt_number, response, target)
+    
+    status, message = win_loss_dict["status"], win_loss_dict["message"]
+        
+  return {"attempts": current_attempt_number, "response": response, "status": status, "message": message}

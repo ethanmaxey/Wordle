@@ -54,6 +54,28 @@ class TestWordle(unittest.TestCase):
   def test_play_with_different_inputs(self, target, guess, attempt_number, new_attempt, response, status, message):
     self.assertEqual(play(target, guess, attempt_number), {"attempts": new_attempt, "response": response, "status": status, "message": message})
   
+  @parameterized.expand([
+    ("FAVOR", "FAVOR", {"attempts": 1, "response": [EXACT] * 5, "status": WON, "message": "Amazing"}, True, 0),
+    ("FAVOR", "RIVER", {"attempts": 1, "response": [ABSENT, ABSENT, EXACT, ABSENT, EXACT], "status": IN_PROGRESS, "message": ""}, True, 0),
+    ("FAVOR", "FAVOR", {"attempts": 0, "response": [], "status": WRONG_SPELLING, "message": ""}, False, 0), 
+    ("FAVOR", "RIVER", {"attempts": 1, "response": [], "status": WRONG_SPELLING, "message": ""}, False, 1),
+  ])
+  def test_play_with_correct_spelling(self, target, guess, expected_response, expected_validity, attempt):
+    
+    def is_spelling_correct(word):
+      is_spelling_correct.called_with = word
+      return expected_validity
+    
+    self.assertEqual(play(target, guess, attempt, is_spelling_correct), expected_response)
+    self.assertEqual(is_spelling_correct.called_with, guess)
+  
+  def test_play_with_exception_raises_exception(self):
+    
+    def is_spelling_correct(word):
+      is_spelling_correct.called_with = word
+      raise Exception
+
+    with self.assertRaises(Exception): play("FAVOR", "RIVER", 0, is_spelling_correct)
+
 if __name__ == '__main__':
   unittest.main()
-
