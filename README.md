@@ -16,7 +16,7 @@ This repository contains the code that imitates the popular game Wordle.
 
 5.  Create a virtual environment. ```python3.9 -m venv venv```
 
-6.  Activate your virtual environment. ```venv/Scripts/activate.bat```
+6.  Activate your virtual environment. ```venv/Scripts/activate.Ps1```
 
 7.  Install dependencies. ```pip install -r requirements.txt```
 
