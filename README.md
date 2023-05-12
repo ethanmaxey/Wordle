@@ -22,4 +22,4 @@ This repository contains the code that imitates the popular game Wordle.
 
 ##
 
-📝 **Note:** This project requires Python 3.9.13. Please ensure you have Python 3.9.13 installed before proceeding.
+📝 **Note:** This project requires Python 3.9. Please ensure you have Python 3.9 installed before proceeding.
