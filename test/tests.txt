@@ -1,0 +1,32 @@
+x play with correct spelling
+x play with another correct spelling
+
+x play with an incorect spelling
+x play with another incorect spelling
+
+x play passes on the exception from is_spelling_correct to the caller
+
+x get_response takes 'FAVOR' returns some response
+
+x parse true to boolean True
+x parse false to boolean False
+
+x is_spelling_correct calls get_response and parse
+x is_spelling_correct passes on the exception from get_response to the caller
+
+x get response returns some response string
+x parse response takes a string of words and returns a list of words
+x parse returns takes an empty string of words and returns an empty list
+x parse throws an exception if string does not have a list
+
+x given a seed and a list of words, get a random word
+x given the same seed, get two random words and verify they are different
+
+x verify that get_a_random_word calls get_response, parse, and get_a_random_word_given_a_seed
+
+x verify that get_a_random_word calls get_random_word_given_a_seed with a seed
+x verify that get_a_random_word calls get_random_word_given_a_seed with a 
+different seed when called a second time
+
+x check the random word is of length 5
+x check the word is in all caps
