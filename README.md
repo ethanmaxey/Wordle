@@ -16,7 +16,7 @@ This repository contains the code that imitates the popular game Wordle.
 
 ##
     
--   Run ```paver ui``` to play.
+-   Run ```paver ui``` to play!
 
 -   Run ```paver``` to run tests.
 
