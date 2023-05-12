@@ -1,4 +1,4 @@
-# 🎮 Wordle
+# 🎮 Wordle Clone
 
 This repository contains the code that imitates the popular game Wordle.
 
